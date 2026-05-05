@@ -172,7 +172,8 @@ p.post-content {
 }
 
 .button {
-  display: inline-block;
+  display: block !important;
+  width: fit-content;
   background: #1976d2;
   color: white;
   border-radius: 4px;

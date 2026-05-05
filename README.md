@@ -1,37 +1,48 @@
-# Redux Essentials Tutorial Example
+# Redux Essentials Example App
 
-This project contains the setup and code from the "Redux Essentials" tutorial example app in the Redux docs ( https://redux.js.org/tutorials/essentials/part-3-data-flow ).
+A blogging platform built while following the [Redux Essentials tutorial](https://redux.js.org/tutorials/essentials/part-3-data-flow). Demonstrates real-world Redux patterns including CRUD operations, async thunks, and normalized state.
 
-The `master` branch has a single commit that already has the initial project configuration in place. You can use this as the starting point to follow along with the instructions from the tutorial.
+## Stack
 
-The `tutorial-steps-ts` branch has the actual code commits from the tutorial. You can look at these to see how the official tutorial actually implements each piece of functionality along the way.
+- [React 18](https://react.dev) + [TypeScript](https://www.typescriptlang.org/)
+- [Redux Toolkit 2](https://redux-toolkit.js.org/)
+- [React Router 6](https://reactrouter.com/)
+- [Vite](https://vitejs.dev/)
+- [MSW](https://mswjs.io/) for API mocking
 
-This project was bootstrapped with [Vite](https://vitejs.dev/), and is based on the [official Redux Toolkit + Vite template](https://github.com/reduxjs/redux-templates/tree/master/packages/vite-template-redux).
+## Getting Started
 
-## Package Managers
+```bash
+yarn install
+yarn dev
+```
 
-This project is currently set up to use [Yarn 4](https://yarnpkg.com/getting-started/usage) as the package manager.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-If you prefer to use another package manager, such as NPM, PNPM, or Bun, delete the `"packageManager"` section from `package.json` and the `.yarnrc.yml` and `yarn.lock` files, then install dependencies with your preferred package manager.
+## Scripts
 
-## Available Scripts
+| Command | Description |
+|---|---|
+| `yarn dev` | Start the dev server |
+| `yarn build` | Build for production |
+| `yarn preview` | Preview the production build |
 
-In the project directory, you can run:
+## Project Structure
 
-### `yarn dev`
+```
+src/
+  api/          # API client and MSW mock server
+  components/   # Shared and feature UI components
+  pages/        # Page-level route components
+  redux/        # Redux store, slices, and selectors
+  App.tsx       # Root component with routing
+```
 
-Runs the app in the development mode.<br />
-Open [http://localhost:4173](http://localhost:4173) to view it in the browser.
+## Branches
 
-The page will reload if you make edits.<br />
+- `master` — starting point for the tutorial (initial config only)
+- `tutorial-steps-ts` — committed step-by-step as the tutorial progresses
 
-### `yarn build`
+## Package Manager
 
-Builds the app for production to the `dist` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-## Learn More
-
-You can learn more about building and deploying in the [Vite docs](https://vitejs.dev/).
-
-To learn React, check out the [React documentation](https://react.dev).
+This project uses [Yarn 4](https://yarnpkg.com/). To switch to npm, pnpm, or bun: delete `"packageManager"` from `package.json` and remove `.yarnrc.yml` and `yarn.lock`, then install with your preferred tool.
