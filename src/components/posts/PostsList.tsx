@@ -1,11 +1,12 @@
-import { IPost } from "@/redux/features/posts/postsSlice";
-import { useAppSelector } from "@/redux/hooks";
+import { fetchPosts, IPost, selectPostSatus, selectPostsError } from "@/redux/features/posts/postsSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { Link } from 'react-router-dom'
 import { selectAllPosts } from "@/redux/features/posts/postsSlice";
 import { PostAuthor } from "./PostAuthor";
 import { PostDate } from "./PostDate";
 import { PostReaction } from "./PostReactions";
-import { memo } from "react";
+import { memo, useEffect } from "react";
+import { Spinner } from "../Spinner";
 
 const SinglePost = (post: IPost) => {
   return (
@@ -22,15 +23,47 @@ const SinglePost = (post: IPost) => {
 const MemoizedSinglePost = memo(SinglePost)
 
 const PostsList = () => {
+  const dispatch = useAppDispatch()
   const posts = useAppSelector(selectAllPosts);
-  const orderdPosts = posts.slice().sort((a, b) => b.date.localeCompare(a.date))
+  const postStatus = useAppSelector(selectPostSatus)
+  const orderdPosts = posts.posts.slice().sort((a, b) => b.date.localeCompare(a.date));
+  const postsError = useAppSelector(selectPostsError)
+
+  useEffect(() => {
+    if (postStatus === 'idle') {
+      dispatch(fetchPosts())
+    }
+  }, [postStatus, dispatch])
+
+  const Content = () => {
+
+    return (
+      <>
+        {
+          postStatus === 'pending' && (
+            <Spinner text="Loading..." />
+          )
+        }
+        {
+          postStatus === 'failed' && (
+            <div>{postsError}</div>
+          )
+        }
+        {
+          postStatus === 'succeeded' && (
+            orderdPosts.map((post) => (
+              <MemoizedSinglePost key={post.id} {...post} />
+            ))
+          )
+        }
+      </>
+    )
+  }
 
   return (
      <section className="posts-list">
       <h2>Posts</h2>
-      {orderdPosts.map((post) => (
-        <MemoizedSinglePost key={post.id} {...post} />
-      ))}
+      <Content />
     </section>
   )
 };

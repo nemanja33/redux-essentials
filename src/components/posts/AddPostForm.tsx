@@ -1,5 +1,5 @@
 import { selectCurrentUsername } from "@/redux/features/auth/authSlice";
-import { IPost, postAdded } from "@/redux/features/posts/postsSlice";
+import { addNewPost, IPost } from "@/redux/features/posts/postsSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { format } from "date-fns";
 import { ChangeEvent, FormEvent, useState } from "react";
@@ -13,6 +13,9 @@ const initPost = {
 
 const AddPostForm = () => {
   const [ post, setPost ] = useState<Omit<IPost, "id">>(initPost);
+   const [addRequestStatus, setAddRequestStatus] = useState<'idle' | 'pending'>(
+    'idle'
+  )
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectCurrentUsername);
 
@@ -20,12 +23,20 @@ const AddPostForm = () => {
     return <></>
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     
     if (!post.title || !post.content) return;
-    dispatch(postAdded(post.title, post.content, user))
-    setPost(initPost)
+    try {
+      setAddRequestStatus('pending')
+      const { title, content, user } = post;
+      dispatch(addNewPost({ title, content, user }))
+      setPost(initPost)
+    } catch (err) {
+      console.error('Failed to save the post: ', err)
+    } finally {
+      setAddRequestStatus('idle')
+    }
   }
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -51,7 +62,7 @@ const AddPostForm = () => {
           <label htmlFor="content">Content</label>
           <textarea id="content" placeholder="Content..." value={post.content} name="content" onChange={handleInputChange}></textarea>
         </div>
-        <button disabled={!post.title || !post.content}>Submit</button>
+        <button disabled={addRequestStatus === 'pending'}>Submit</button>
       </form>
     </section>
   )

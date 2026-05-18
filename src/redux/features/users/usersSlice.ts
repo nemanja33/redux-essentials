@@ -1,3 +1,5 @@
+import { client } from "@/api/client";
+import { createAppAsyncThunk } from "@/redux/hooks";
 import { createSlice } from "@reduxjs/toolkit";
 
 interface IUser {
@@ -5,11 +7,15 @@ interface IUser {
   name: string
 }
 
-const initUsers: IUser[] = [
-  { id: '0', name: 'Tianna Jenkins' },
-  { id: '1', name: 'Kevin Grant' },
-  { id: '2', name: 'Madison Price' }
-]
+const initUsers: IUser[] = []
+
+export const fetchUsers = createAppAsyncThunk(
+  'users/fetchUsers',
+  async () => {
+    const response = await client.get<IUser[]>('/fakeApi/users')
+    return response.data
+  }
+)
 
 const usersSlice = createSlice({
   name: "users",
@@ -20,6 +26,12 @@ const usersSlice = createSlice({
   selectors: {
     selectAllUsers: state => state,
     selectUserById: (state, id: string) => state.find((user) => user.id === id)
+  },
+  extraReducers(builder) {
+    builder
+      .addCase(fetchUsers.fulfilled, (state, action) => {
+        return action.payload
+      })
   }
 });
 

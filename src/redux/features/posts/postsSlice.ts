@@ -1,6 +1,7 @@
 import { createSlice, nanoid, PayloadAction } from "@reduxjs/toolkit";
-import { sub } from "date-fns";
 import { signOut } from "../auth/authSlice";
+import { createAppAsyncThunk } from "@/redux/hooks";
+import { client } from "@/api/client";
 
 type ReactionType = {
   thumbsUp: number,
@@ -21,58 +22,55 @@ interface IPost {
   reactions?: ReactionType
 };
 
+interface PostState {
+  posts: IPost[],
+  status: 'idle' | 'pending' | 'succeeded' | 'failed',
+  error: string | null
+}
+
 type PostUpdate = Pick<IPost, 'id' | 'title' | "content" | "reactions">
 
-const initPosts: IPost[] = [
-  {
-    id: '1',
-    title: 'First Post!',
-    content: 'Hello!',
-    user: '0',
-    date: sub(new Date(), { hours: 10 }).toISOString(),
-    reactions: {
-      thumbsUp: 0,
-      tada: 0,
-      heart: 0,
-      rocket: 0,
-      eyes: 0,
-    }
+export const fetchPosts = createAppAsyncThunk(
+  'posts/fetchPosts',
+  async () => {
+    const response = await client.get<IPost[]>('/fakeApi/posts')
+    return response.data
   },
   {
-    id: '2',
-    title: 'Second Post',
-    content: 'More text',
-    user: '2',
-    date: sub(new Date(), { minutes: 5 }).toISOString(),
-    reactions: {
-      thumbsUp: 0,
-      tada: 0,
-      heart: 0,
-      rocket: 0,
-      eyes: 0,
+    condition(arg, thunkApi) {
+      const postStatus = selectPostSatus(thunkApi.getState())
+      if (postStatus !== 'idle') {
+        return false
+      }
     }
   }
-]
+)
+
+const initialState: PostState = {
+  posts: [],
+  status: 'idle',
+  error: null
+}
+type NewPost = Pick<IPost, 'title' | 'content' | 'user'>
+
+export const addNewPost = createAppAsyncThunk(
+  'posts/addNewPost',
+  // The payload creator receives the partial `{title, content, user}` object
+  async (initialPost: NewPost) => {
+    // We send the initial data to the fake API server
+    const response = await client.post<IPost>('/fakeApi/posts', initialPost)
+    // The response includes the complete post object, including unique ID
+    return response.data
+  }
+)
 
 export const postsSlice = createSlice({
   name: "posts",
-  initialState: initPosts,
+  initialState: initialState,
   reducers: {
-    postAdded: {
-      reducer(state, action: PayloadAction<IPost>) {
-        state.push(action.payload)
-      },
-      prepare(title: string, content: string, userId: string) {
-        const now = new Date().toISOString();
-
-        return {
-          payload: {id: nanoid(), title, content, user: userId, date: now }
-        }
-      }
-    },
     postUpdated(state, action: PayloadAction<PostUpdate>) {
       const { id, title, content } = action.payload
-      const post = state.find(s => s.id === id);
+      const post = state.posts.find(s => s.id === id);
       const now = new Date().toISOString();
 
       if (post) {
@@ -83,7 +81,7 @@ export const postsSlice = createSlice({
     },
     reactionAdded(state, action: PayloadAction<{ id: string, reaction: ReactionName}>) {
       const { id, reaction } = action.payload;
-      const post = state.find(s => s.id === id);
+      const post = state.posts.find(s => s.id === id);
 
       if (post?.reactions) {
         post.reactions[reaction] += 1
@@ -92,19 +90,38 @@ export const postsSlice = createSlice({
   },
   selectors: {
     selectAllPosts: state => state,
-    selectPostById: (state, id: string) => state.find((post) => post.id === id),
+    selectPostById: (state, id: string) => state.posts.find((post) => post.id === id),
+    selectPostSatus: state => state.status,
+    selectPostsError: state => state.error
   },
   extraReducers(builder) {
-    builder.addCase(signOut, () => {
-      return initPosts
-    })
+    builder
+      .addCase(signOut, () => {
+        return initialState
+      })
+      .addCase(fetchPosts.pending, (state, action) => {
+        state.status = 'pending'
+      })
+      .addCase(fetchPosts.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        // Add any fetched posts to the array
+        state.posts.push(...action.payload)
+      })
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.error.message ?? 'Unknown Error'
+      })
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        // We can directly add the new post object to our posts array
+        state.posts.push(action.payload)
+      })
   },
 });
 
 export default postsSlice;
 
-export const { postAdded, postUpdated, reactionAdded } = postsSlice.actions;
+export const { postUpdated, reactionAdded } = postsSlice.actions;
 
-export const { selectAllPosts, selectPostById } = postsSlice.selectors;
+export const { selectAllPosts, selectPostById, selectPostSatus, selectPostsError } = postsSlice.selectors;
 
 export type { IPost, ReactionName }
