@@ -8,6 +8,8 @@ import { Login } from './pages/login/login'
 import { useAppSelector } from "@/redux/hooks";
 import { selectCurrentUsername } from './redux/features/auth/authSlice'
 import { ReactNode } from 'react'
+import { UsersPage } from './pages/users/Users';
+import { UserPage } from './pages/users/user/User';
 
 const routes = [
   {
@@ -25,6 +27,14 @@ const routes = [
   {
     path: "/login",
     element: <Login />
+  },
+  {
+    path: "/users",
+    element: <UsersPage />
+  },
+  {
+    path: "/users/:id",
+    element: <UserPage />
   }
 ]
 

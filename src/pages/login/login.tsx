@@ -1,4 +1,4 @@
-import { signIn } from "@/redux/features/auth/authSlice";
+import { login } from "@/redux/features/auth/authSlice";
 import { selectAllUsers } from "@/redux/features/users/usersSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { ChangeEvent, FormEvent, useState } from "react";
@@ -13,8 +13,10 @@ const Login = () => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (activeUser) {
-      dispatch(signIn(activeUser))
-      navigate("/posts")
+      dispatch(login(activeUser))
+      setTimeout(() => {
+        navigate("/posts")
+      }, 1000);
     }
   }
 
@@ -35,7 +37,13 @@ const Login = () => {
       <h3>Please log in:</h3>
       <form onSubmit={handleSubmit}>
         <label htmlFor="username">User:</label>
-        <select id="username" name="username" value={activeUser} required onChange={handleSelectChange}>
+        <select
+          disabled={!users.length}
+          id="username"
+          name="username"
+          value={activeUser}
+          required
+          onChange={handleSelectChange}>
           <option value=""></option>
           {usersOptions}
         </select>

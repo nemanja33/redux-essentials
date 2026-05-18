@@ -1,4 +1,4 @@
-import { selectCurrentUsername, signOut } from '@/redux/features/auth/authSlice';
+import { logout, selectCurrentUsername } from '@/redux/features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserIcon } from './UserIcon';
@@ -9,7 +9,7 @@ export const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    dispatch(signOut());
+    dispatch(logout());
     navigate("/")
   }
   
@@ -32,6 +32,7 @@ export const Navbar = () => {
               <>
                 <div className="navLinks">
                   <Link to="/">Posts</Link>
+                  <Link to="/users">Users</Link>
                 </div>
                 <div className="navLinks">
                   <UserIcon size={32} />

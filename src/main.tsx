@@ -18,9 +18,6 @@ async function start() {
   store.dispatch(fetchUsers())
   const root = createRoot(document.getElementById('root')!)
 
-  console.log(store.getState());
-  
-
   root.render(
     <React.StrictMode>
       <Provider store={store}>

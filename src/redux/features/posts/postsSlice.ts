@@ -1,7 +1,7 @@
 import { createSlice, nanoid, PayloadAction } from "@reduxjs/toolkit";
-import { signOut } from "../auth/authSlice";
 import { createAppAsyncThunk } from "@/redux/hooks";
 import { client } from "@/api/client";
+import { logout } from "../auth/authSlice";
 
 type ReactionType = {
   thumbsUp: number,
@@ -92,11 +92,16 @@ export const postsSlice = createSlice({
     selectAllPosts: state => state,
     selectPostById: (state, id: string) => state.posts.find((post) => post.id === id),
     selectPostSatus: state => state.status,
-    selectPostsError: state => state.error
+    selectPostsError: state => state.error,
+    selectPostsByUser: (state, id: string) => {
+      const allPosts = selectAllPosts(state);
+      
+      return allPosts.filter((post) => post.user === id);
+    }
   },
   extraReducers(builder) {
     builder
-      .addCase(signOut, () => {
+      .addCase(logout.fulfilled, () => {
         return initialState
       })
       .addCase(fetchPosts.pending, (state, action) => {
@@ -122,6 +127,6 @@ export default postsSlice;
 
 export const { postUpdated, reactionAdded } = postsSlice.actions;
 
-export const { selectAllPosts, selectPostById, selectPostSatus, selectPostsError } = postsSlice.selectors;
+export const { selectAllPosts, selectPostById, selectPostSatus, selectPostsError, selectPostsByUser } = postsSlice.selectors;
 
 export type { IPost, ReactionName }
