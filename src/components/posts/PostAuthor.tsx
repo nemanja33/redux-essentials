@@ -1,12 +1,22 @@
 import { selectUserById } from "@/redux/features/users/usersSlice";
 import { useAppSelector } from "@/redux/hooks";
 
-const PostAuthor = ({ id }: { id: string }) => {
+interface PostAuthorProps {
+  id: string;
+  showPrefix?: boolean
+}
+
+const PostAuthor = ({ id, showPrefix = true }: PostAuthorProps) => {
   const author = useAppSelector(state => selectUserById(state, id!));
 
   if (!author) return <></>
 
-  return <span>by {author?.name ?? 'Unknown author'}</span>
+  return (
+    <span>
+      { showPrefix ? 'by ' : null }
+      {author?.name ?? 'Unknown author'}
+    </span>
+  )
 };
 
 export { PostAuthor }

@@ -2,8 +2,9 @@ import { Action, combineSlices, configureStore, ThunkAction } from "@reduxjs/too
 import postsSlice from "./features/posts/postsSlice";
 import usersSlice from "./features/users/usersSlice";
 import authSlice from "./features/auth/authSlice";
+import notificationSlice from "./features/notifications/notificationSlice";
 
-const reducers = combineSlices(postsSlice, usersSlice, authSlice)
+const reducers = combineSlices(postsSlice, usersSlice, authSlice, notificationSlice)
 
 export const store = configureStore({
   reducer: reducers

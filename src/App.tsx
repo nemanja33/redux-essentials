@@ -10,6 +10,7 @@ import { selectCurrentUsername } from './redux/features/auth/authSlice'
 import { ReactNode } from 'react'
 import { UsersPage } from './pages/users/Users';
 import { UserPage } from './pages/users/user/User';
+import { NotificationsPage } from './pages/notifications/notifications';
 
 const routes = [
   {
@@ -35,6 +36,10 @@ const routes = [
   {
     path: "/users/:id",
     element: <UserPage />
+  },
+  {
+    path: "/notifications",
+    element: <NotificationsPage />
   }
 ]
 
