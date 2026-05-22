@@ -1,4 +1,4 @@
-import { fetchPosts, IPost, selectPostSatus, selectPostsError } from "@/redux/features/posts/postsSlice";
+import { fetchPosts, selectPostById, selectPostSatus, selectPostsError } from "@/redux/features/posts/postsSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { Link } from 'react-router-dom'
 import { selectAllPosts } from "@/redux/features/posts/postsSlice";
@@ -8,7 +8,8 @@ import { PostReaction } from "./PostReactions";
 import { memo, useEffect } from "react";
 import { Spinner } from "../Spinner";
 
-const SinglePost = (post: IPost) => {
+const SinglePost = ({id}: {id: string}) => {
+  const post = useAppSelector(state => selectPostById(state, id))
   return (
     <article className="post-excerpt" key={post.id}>
       {!!post.title && <h3><Link to={`/posts/${post.id}`}>{post.title}</Link></h3>}
@@ -26,7 +27,7 @@ const PostsList = () => {
   const dispatch = useAppDispatch()
   const posts = useAppSelector(selectAllPosts);
   const postStatus = useAppSelector(selectPostSatus)
-  const orderdPosts = posts.posts.slice().sort((a, b) => b.date.localeCompare(a.date));
+  const orderdPosts = posts.slice().sort((a, b) => b.date.localeCompare(a.date));
   const postsError = useAppSelector(selectPostsError)
 
   useEffect(() => {
@@ -45,14 +46,14 @@ const PostsList = () => {
           )
         }
         {
-          postStatus === 'failed' && (
+          postStatus === 'rejected' && (
             <div>{postsError}</div>
           )
         }
         {
           postStatus === 'succeeded' && (
             orderdPosts.map((post) => (
-              <MemoizedSinglePost key={post.id} {...post} />
+              <MemoizedSinglePost key={post.id} id={post.id} />
             ))
           )
         }
